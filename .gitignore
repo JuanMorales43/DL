@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Resultados de experimentos (12 GB: checkpoints, logs, figuras)
+results/
+
+# Pesos preentrenados y checkpoints
+weights/
+*.pth
+*.pt
+*.ckpt
+*.h5
+
+# Logs de Weights & Biases
+wandb/
+
+# Datos e imagenes (no subir a GitHub)
+intratumoral-patches/
+intratumoral-patches-tiff/
+data/*.csv
+data/*.json
+*.tif
+*.tiff
+*.npy
+*.npz
+*.zip
+
+# Sistema / editor
+.DS_Store
+.vscode/
