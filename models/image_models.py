@@ -1,10 +1,11 @@
-from torchvision.models import resnet50, densenet121, inception_v3
+from torchvision.models import resnet50, densenet121, inception_v3, ResNet50_Weights
 from torch import nn
 import torch
 
 def get_image_model(
         model_name:str          = "ResNet",
         weigths_file:str        = None,
+        weights_type:str        = "custom",
         num_freeze:int          = 0) -> nn.Module:
     """
     Function to get the model based on the given name.
@@ -12,6 +13,7 @@ def get_image_model(
     Args:
         model_name (str)        : Name of the model to be retrieved.
         weigths_file (str)      : Path to the weights file to load into the model.
+        weights_type (str)      : Source of the base model weights, either 'custom' or 'imagenet'.
         freeze_backbone (bool)  : Whether to freeze the backbone of the model or not.
     Returns:
         torch.nn.Module: The model class corresponding to the given name.
@@ -20,7 +22,7 @@ def get_image_model(
     device         = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
     if(model_name == "ResNet"):
-        base_model      = ResNetModel()
+        base_model      = ResNetModel(weights_type=weights_type)
     elif(model_name == "DenseNet"):
         base_model      = DenseNetModel()
     elif(model_name == "Inception"):
@@ -28,8 +30,8 @@ def get_image_model(
     else:
         raise ValueError(f"Model {model_name} not supported. Please choose from 'ResNet', 'DenseNet', or 'Inception'.")
     
-    # Si los pesos son proporcionados, cargarlos en el modelo base
-    if weigths_file is not None:
+    # Si se usan pesos personalizados y son proporcionados, cargarlos en el modelo base
+    if weights_type == "custom" and weigths_file is not None:
         if not isinstance(weigths_file, str):
             raise ValueError("Weights file must be a string path to the weights file.")
         else:
@@ -77,13 +79,17 @@ class ResNetModel(nn.Module):
     Model class for ResNet50 architecture.
     This class initializes the ResNet50 model without the final fully connected layer.
     It uses the torchvision implementation of ResNet50.
+    The base can be initialized with the ImageNet weights provided by torchvision or
+    left randomly initialized when custom weights are loaded afterwards.
     The model is designed to be used as a backbone for further classification tasks.
     """
 
-    def __init__(self):
+    def __init__(self, weights_type:str = "custom"):
         super(ResNetModel, self).__init__()
-        
-        base_model      = resnet50(pretrained=False)
+
+        # Pesos de ImageNet si se solicitan, en caso contrario inicialización aleatoria
+        weights         = ResNet50_Weights.IMAGENET1K_V1 if weights_type == "imagenet" else None
+        base_model      = resnet50(weights=weights)
         self.features   = base_model.fc.in_features
         encoder_layers  = list(base_model.children())
         self.backbone   = nn.Sequential(*encoder_layers[:9])

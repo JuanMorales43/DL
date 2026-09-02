@@ -9,6 +9,7 @@ def get_model(options:dict):
     image_model = get_image_model(
         model_name      = options.image_model,
         weigths_file    = options.path_image_model,
+        weights_type    = options.weights_type,
         num_freeze      = options.num_freeze
     )
     
@@ -24,6 +25,7 @@ if __name__ == "__main__":
         "strategy"          : "images",
         "image_model"       : "ResNet",
         "path_image_model"  : "/mnt/Datos/Master_Camilo/DL/weights/RadImageNet_pytorch/ResNet50.pt",
+        "weights_type"      : "custom",
         "freeze_backbone"   : True,
     }
     
